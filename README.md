@@ -1,8 +1,7 @@
 # Neural-DSD
 Reduced order modeling of cloud droplet size distributions for atmospheric modeling.
 
-![](https://github.com/kdlamb/neural-dsd/blob/main/Figures/1dCloudEvol.gif)
-![](https://github.com/kdlamb/neural-dsd/blob/main/Figures/1dCloudEvol_bindists.gif)
+|![](https://github.com/kdlamb/neural-dsd/blob/main/Figures/1dCloudEvol_bindists.gif)|![](https://github.com/kdlamb/neural-dsd/blob/main/Figures/1dCloudEvol.gif)|
 
 ## Overview
 This repo contains a PyTorch implementation of the code for the paper "Reduced Order Modeling for Linearized Representations of Microphysical Process Rates".
