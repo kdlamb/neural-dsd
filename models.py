@@ -95,9 +95,9 @@ class DriverDatasets(Dataset):
         
         return M,dMdt,bin0,bin1coal,bin1condevap,binmag,M1,dM1dt,M2,dM2dt
 
-class CNNEncoderAE(torch.nn.Module):
+class CNNEncoderVAE(torch.nn.Module):
     def __init__(self,n_channels=2,n_bins=35,n_latent=10):
-        super(CNNEncoderAE, self).__init__()
+        super(CNNEncoderVAE, self).__init__()
         self.n_bins = n_bins
         self.conv1 = Conv1d(in_channels=2,out_channels=4,kernel_size=4,stride=2,padding=1)
         self.activation1 = ReLU()
@@ -105,12 +105,15 @@ class CNNEncoderAE(torch.nn.Module):
         self.activation2 = ReLU()
         self.conv3 = Conv1d(in_channels=8,out_channels=4,kernel_size=4,stride=2,padding=1)
         self.activation3 = ReLU()
-        self.lin = Lin(16,n_latent)
+
+        
+        self.fc_mu = Lin(16,n_latent)
+        self.fc_var = Lin(16,n_latent)
         
         torch.nn.init.kaiming_normal_(self.conv1.weight)
         torch.nn.init.kaiming_normal_(self.conv2.weight)
         torch.nn.init.kaiming_normal_(self.conv3.weight)
-        
+
     def forward(self,x):
         n_bins = self.n_bins
         x = self.conv1(x)
@@ -121,7 +124,10 @@ class CNNEncoderAE(torch.nn.Module):
         x = self.activation3(x)
         x = x.view(-1,16)
         
-        return self.lin(x)
+        mu = self.fc_mu(x)
+        log_var = self.fc_var(x)
+        
+        return mu, log_var
 
 class CNNDecoder(torch.nn.Module):
     def __init__(self,n_channels=4,n_bins=35,n_latent=10,n_hidden=50):
@@ -143,11 +149,9 @@ class CNNDecoder(torch.nn.Module):
         self.lin2 = Lin(n_bins,n_bins)
         self.activation4 = Sigmoid()
         
-
         torch.nn.init.kaiming_normal_(self.conv1.weight)
         torch.nn.init.kaiming_normal_(self.conv2.weight)
         torch.nn.init.kaiming_normal_(self.conv3.weight)
-        torch.nn.init.normal_(self.lin2.weight,mean=0.0,std=0.01)       
         
     def forward(self,x):
         n_bins = self.n_bins
@@ -169,6 +173,58 @@ class CNNDecoder(torch.nn.Module):
         x = self.activation4(x) 
 
         return x
+class LatentTransform(torch.nn.Module):
+    def __init__(self,n_input,n_hidden=50):
+        super(LatentTransform,self).__init__()   
+        self.dLidt = Lin(n_input, n_input,bias=False)
+        
+        torch.nn.init.normal_(self.dLidt.weight,mean=0.0,std=0.005)
+        
+    def forward(self, Lk):
+        ide = torch.ones_like(Lk)
+
+        dLidt = self.dLidt(Lk)
+
+        return dLidt
+class VAElatentdynamics(torch.nn.Module):
+    def __init__(self,n_bins=35,n_latent=10,n_hidden=50):
+        super(VAElatentdynamics, self).__init__()
+ 
+        self.encoder = CNNEncoderVAE(n_bins=n_bins,n_latent=n_latent)
+        self.decoder = CNNDecoder(n_bins=n_bins,n_latent=n_latent)
+        self.n_latent = n_latent
+
+        self.L0 = LatentTransform(n_latent)
+
+    def reparameterize(self, mu, logvar):
+        std = (logvar*0.5).exp()
+        eps = torch.randn_like(std)
+        
+        return eps*std+mu
+    
+    def forward(self,bint0,bint1,binmagt0,binmagt1):
+        
+        bs = bint0.shape[0]
+
+        mu0,logvar0 = self.encoder(bint0*torch.broadcast_to(binmagt0.unsqueeze(dim=2),(bs,2,35)))
+        mu1,logvar1  = self.encoder(bint1*torch.broadcast_to(binmagt1.unsqueeze(dim=2),(bs,2,35)))
+
+        Lit0 = self.reparameterize(mu0,logvar0)        
+        Lit1 = self.reparameterize(mu1,logvar1)
+        
+        Lit0_cond = torch.cat((Lit0, binmagt0),axis=1)
+        Lit1_cond = torch.cat((Lit1, binmagt1),axis=1)
+        
+        Lit1pred = Lit0+self.L0(Lit0)
+        Lit1pred_cond = torch.cat((Lit1pred, binmagt1),axis=1)
+
+        Rt0 = self.decoder(Lit0)
+        Rt1 = self.decoder(Lit1pred)
+        
+        binmagRt0 = torch.sum(Rt0,dim=2) 
+        binmagRt1 = torch.sum(Rt1,dim=2) 
+
+        return Rt0,Rt1,Lit1,Lit1pred,binmagRt0,binmagRt1,Lit0,mu0,logvar0,mu1,logvar1
     
 class MicroAutoEncoder(torch.nn.Module):
     def __init__(self,n_channels=2,n_bins=35,n_latent=10):

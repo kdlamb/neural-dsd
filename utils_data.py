@@ -717,13 +717,6 @@ def flaggeddatanormedcase(ds1,ds2,case,binmagscales,normalized=True):
             maskall = np.logical_and(maskall,masklog)
     
     maskall = np.logical_and(maskall,binmask)
-            
-    #M = M[maskall,:]
-    #dMdt = dMdt[maskall,:]
-    #bin0 = bin0[maskall,:]
-    #bin1coal = bin1coal[maskall,:]
-    #bin1condevap = bin1condevap[maskall,:]
-    #binmag = binmag[maskall,:]
     
     for i in range(0,binmag.shape[1]):
         binmag[:,i] = np.log(binmag[:,i])
@@ -741,10 +734,6 @@ def flaggeddatanormedcase(ds1,ds2,case,binmagscales,normalized=True):
     M2 = twocatmoms[:,:]
     dM2dt = twocatrats[:,:]
     
-    #M1 = M1[maskall,:]
-    #dM1dt = dM1dt[maskall,:]
-    #M2 = M2[maskall,:]
-    #dM2dt = dM2dt[maskall,:]
     
     return M,dMdt,bin0,bin1coal,bin1condevap,momscales,binmag,M1,dM1dt,M2,dM2dt,maskall
 def bindatacase(ds,case,momscales,rescaled=True):
