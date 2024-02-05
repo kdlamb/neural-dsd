@@ -4,19 +4,7 @@ Reduced order modeling of cloud droplet size distributions for atmospheric model
 ## Overview
 This repo contains a PyTorch implementation of the code for the paper "Reduced Order Modeling for Linearized Representations of Microphysical Process Rates".
 
-## Citation
 
-The preprint for this paper can be found at:
-
-```
-@article{Lamb2023,
-  title={Unsupervised Learning of Predictors for Microphysical Process Rates},
-  author={Lamb, K.D. and van Lier Walqui, M. and Santos, S. and Morrison, H.},
-  journal={ESS Open Archive},
-  doi = {DOI: 10.22541/essoar.168995384.44033471/v1},
-  year={2023}
-}
-```
 ## Content
 - [Data Preparation](#data-preparation)
 - [Intrinsic Dimension Calculation](#id-calculation)
@@ -46,3 +34,16 @@ The DSDReconstructions.ipynb contains code to reconstruct the DSD from the laten
 ## Regime Dependence
 The RegimeDependence.ipynb contains code to visualize cases from the 1D driver model and investigate how different regimes correspond with learned latent variables.
 
+## Citation
+
+The preprint for this paper can be found at:
+
+```
+@article{Lamb2023,
+  title={Unsupervised Learning of Predictors for Microphysical Process Rates},
+  author={Lamb, K.D. and van Lier Walqui, M. and Santos, S. and Morrison, H.},
+  journal={ESS Open Archive},
+  doi = {DOI: 10.22541/essoar.168995384.44033471/v1},
+  year={2023}
+}
+```
