@@ -1,6 +1,9 @@
 # Neural-DSD
 Reduced order modeling of cloud droplet size distributions for atmospheric modeling.
 
+![](https://github.com/kdlamb/neural-dsd/blob/main/Figures/1dCloudEvol.gif)
+![](https://github.com/kdlamb/neural-dsd/blob/main/Figures/1dCloudEvol_bindists.gif)
+
 ## Overview
 This repo contains a PyTorch implementation of the code for the paper "Reduced Order Modeling for Linearized Representations of Microphysical Process Rates".
 
@@ -8,7 +11,7 @@ This repo contains a PyTorch implementation of the code for the paper "Reduced O
 ## Content
 - [Data Preparation](#data-preparation)
 - [Intrinsic Dimension Calculation](#id-calculation)
-- [Training the Model](#training)
+- [Latent Dynamics](#latent-dynamics)
 - [Latent Visualization](#latent-visualization)
 - [DSD Reconstructions](#dsd-reconstruction)
 - [Regime Dependence](#regime-dependence)
@@ -20,16 +23,16 @@ Data sets from the 1D driver model (which uses the Tel Aviv University bin micro
 Bin distributions are prepared as inputs to the machine learning models in the Preprocessing.ipynb notebook.
 
 ## Intrinsic Dimension Calculation
-The IntrinsicDimension.ipynb notebook determines the intrinsic dimension of the latent representation of collision-coalescence using the method described in Chen et al. 2022.
+The Training-IDCalculation.ipynb notebook determines the intrinsic dimension of the latent representation of collision-coalescence using the method described in Chen et al. 2022.
 
-## Training the Model
-The autoencoder is trained on the prepared data sets using the Training.ipynb notebook.
+## Latent Dynamics
+The latent dynamics are learned using the Training-LatentDynamics.ipynb notebook.
 
 ## Latent Visualization
-The LatentVisualization.ipynb contains code to visualize the latent space and compare it against the one and two category moments of the DSD's.
+The LatentVisualization.ipynb contains code to visualize the latent space and compare it against the one and two category moments of the DSD's. This notebook also includes code to plot the latent manifold. 
 
 ## DSD Reconstructions
-The DSDReconstructions.ipynb contains code to reconstruct the DSD from the latent variables and the moments and to calculate metrics to compare the different DSD representations.
+The DSDReconstructions.ipynb contains code to reconstruct the DSD from the latent variables and the moments and to calculate metrics to compare the different DSD representations. Code to train an ensemble of models to reconstruct the DSD for the single category case and the two category case are in Training-BinsFromMoments.ipynb and Training-BinsFromTwoCatMoments.ipynb.
 
 ## Regime Dependence
 The RegimeDependence.ipynb contains code to visualize cases from the 1D driver model and investigate how different regimes correspond with learned latent variables.
